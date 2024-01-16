@@ -9,10 +9,10 @@ $(OUTPUT_BIN) : $(OBJECTS)
 test-inst.o: test-inst.cpp VegaDetails.o AMDGPUEmitter.o
 	$(CXX) $(CFLAGS) test-inst.cpp
 
-VegaDetails.o: VegaDetails.h
+VegaDetails.o: VegaDetails.h VegaDetails.cpp
 	$(CXX) $(CFLAGS) VegaDetails.cpp
 
-AMDGPUEmitter.o: MemBuffer.h Emitter.h VegaDetails.h AMDGPUEmitter.h AMDGPUEmitter.cpp
+AMDGPUEmitter.o: MemBuffer.h Emitter.h VegaDetails.h AMDGPUEmitter.h VegaDetails.cpp AMDGPUEmitter.cpp
 	$(CXX) $(CFLAGS) AMDGPUEmitter.cpp
 
 
