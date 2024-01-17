@@ -330,8 +330,8 @@ enum SOPP_Opcode {
   S_NOP = 0,
   S_ENDPGM = 1,
   S_BRANCH = 2,
-  S_BRANCH_SCC0 = 4,
-  S_BRANCH_SCC1 = 5
+  S_CBRANCH_SCC0 = 4,
+  S_CBRANCH_SCC1 = 5
 };
 
 uint32_t getMaskSopP(ContentKind k);

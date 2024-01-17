@@ -313,7 +313,7 @@ void AMDGPUEmitter::emitMovLiteral(Register reg, uint32_t literal,
 
 void AMDGPUEmitter::emitConditionalBranch(bool onConditionTrue,
                                           int16_t wordOffset, codeGen &gen) {
-  unsigned opcode = onConditionTrue ? S_BRANCH_SCC0 : S_BRANCH_SCC1;
+  unsigned opcode = onConditionTrue ? S_CBRANCH_SCC0 : S_CBRANCH_SCC1;
   emitSopP(opcode, /* hasImm = */ true, wordOffset, gen);
 }
 
