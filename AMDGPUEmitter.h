@@ -39,7 +39,34 @@
 
 class AMDGPUEmitter : public Emitter {
 public:
-  // Return the index of the branch instruction in the codegen memory buffer.
+  // emitIf semantics:
+  // if (expr_reg == 0)
+  //   jump to target address
+  //
+
+  // emitIf implementation approach:
+  //
+  // if (expr_reg != 0)
+  //   jump to <else_block>
+  //
+  // jump_to_then_block (which jumps to target address)
+  //
+  // else_block:
+  //
+
+  // Actual instruction sequence:
+  //
+  // s_cmp_ne_u32 <expr_reg>, 0
+  // s_cbranch_scc0 0
+  //
+  // jump_to_then_block:
+  //   s_setpc_b64 [t:t+1]  (t, t+1 hold the target address)
+  //
+  // else_block:
+
+  // The target address is held in an even aligned register pair
+  // Return the index of s_setpc_b64 in the codegen memory buffer.
+  // Note that RegControl is unused on AMDGPU, simply pass rc_no_control.
   unsigned emitIf(Register expr_reg, Register target, RegControl rc,
                   codeGen &gen);
 

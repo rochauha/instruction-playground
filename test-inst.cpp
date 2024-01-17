@@ -23,13 +23,14 @@ int main(int argc, char **argv) {
   // SCC_DUMMY = <] 0, SGPR_1, 20, codegenBuffer, 0);
   //
   // emitter.emitTimesImm(SGPR_1, SGPR_1, -14, codegenBuffer);
-  emitter.emitLongJump(SGPR_4, SGPR_5, 0xdeadbeef, codegenBuffer);
+  // emitter.emitLongJump(SGPR_4, SGPR_5, 0xdeadbeef, codegenBuffer);
   // emitter.emitNops(1, codegenBuffer);
   // emitter.emitConditionalBranch([>onConditionTrue<] true, 17, codegenBuffer);
   // emitter.emitConditionalBranch([>onConditionTrue<] false, 17,
   // codegenBuffer);
-  emitter.emitEndProgram(codegenBuffer);
-  emitter.emitShortJump(13, codegenBuffer);
+  // emitter.emitEndProgram(codegenBuffer);
+  // emitter.emitShortJump(13, codegenBuffer);
+  emitter.emitIf(SGPR_1, SGPR_4, rc_no_control, codegenBuffer);
 
   printf("%lu\n", codegenBuffer.getOffset());
   // FILE *f = fopen("codegen-buffer", "wb");

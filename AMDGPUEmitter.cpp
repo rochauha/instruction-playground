@@ -38,8 +38,21 @@ using namespace Vega;
 
 unsigned AMDGPUEmitter::emitIf(Register expr_reg, Register target,
                                RegControl rc, codeGen &gen) {
-  printf("emitIf not implemented yet\n");
-  return 0;
+  // Caller must ensure that target is even; and target, target+1 hold the
+  // target address.
+
+  assert(target >= SGPR_0 && target <= SGPR_101 && "reg0 must be an SGPR");
+  assert(target % 2 == 0 &&
+         "target must be even as we will use target, target+1 in pair");
+
+  emitSopK(S_CMPK_EQ_U32, expr_reg, 0, gen);
+  emitConditionalBranch(/* onConditionTrue = */ false, 0, gen);
+
+  size_t setPcInstOffset = gen.getOffset();
+  emitSop1(S_SETPC_B64, /* dest = */ 0, target, /* hasLiteral = */ false, 0,
+           gen);
+
+  return setPcInstOffset;
 }
 
 // AMDGPUEmitter implementation
