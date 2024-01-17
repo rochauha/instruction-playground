@@ -41,7 +41,7 @@ unsigned AMDGPUEmitter::emitIf(Register expr_reg, Register target,
   // Caller must ensure that target is even; and target, target+1 hold the
   // target address.
 
-  assert(target >= SGPR_0 && target <= SGPR_101 && "reg0 must be an SGPR");
+  assert(target >= SGPR_0 && target <= SGPR_101 && "target must be an SGPR");
   assert(target % 2 == 0 &&
          "target must be even as we will use target, target+1 in pair");
 
@@ -100,7 +100,7 @@ void AMDGPUEmitter::emitLoad(Register dest, Address addr, int size,
 }
 
 void AMDGPUEmitter::emitLoadConst(Register dest, Address imm, codeGen &gen) {
-  // Caller must ensure that dest is available; and dest, dest+1 are available.
+  // Caller must ensure that dest is even; and dest, dest+1 are available.
 
   assert(sizeof(Address) == 8); // must be a 64-bit address
   Register reg0 = dest;

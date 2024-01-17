@@ -317,12 +317,11 @@ void emitSopK(unsigned opcode, Register dest, int16_t simm16, codeGen &gen);
 // === SOPK END ===
 
 
-// TODO : SOPP, SMEM
+// TODO : SMEM
 
 // === SOPP BEGIN ===
-// SOPP instruction format in memory: [encoding] [7-fixed-bits] [opcode]
-// [simm16]
-//                   bits (total 32):   2(10)     (1111111)        7         16
+// SOPP instruction format in memory: [encoding] [7-fixed-bits] [opcode] [simm16]
+//                   bits (total 32):   2(10)      (1111111)       7        16
 //
 // This enum contains particular SOPP instructions of interest.
 // Extend it later as needed.
