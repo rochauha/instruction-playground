@@ -166,7 +166,12 @@ enum ContentKind {
   CK_SopK_FixedBits,
   CK_SopK_Opcode,
   CK_SopK_Dst,
-  CK_SopK_SImm16
+  CK_SopK_SImm16,
+
+  CK_SopP_Encoding,
+  CK_SopP_FixedBits,
+  CK_SopP_Opcode,
+  CK_SopP_SImm16
 };
 
 // === SOP1 BEGIN ===
@@ -314,6 +319,29 @@ void emitSopK(unsigned opcode, Register dest, int16_t simm16, codeGen &gen);
 
 // TODO : SOPP, SMEM
 
+// === SOPP BEGIN ===
+// SOPP instruction format in memory: [encoding] [7-fixed-bits] [opcode]
+// [simm16]
+//                   bits (total 32):   2(10)     (1111111)        7         16
+//
+// This enum contains particular SOPP instructions of interest.
+// Extend it later as needed.
+enum SOPP_Opcode {
+  S_NOP = 0,
+  S_ENDPGM = 1,
+  S_BRANCH = 2,
+  S_BRANCH_SCC0 = 4,
+  S_BRANCH_SCC1 = 5
+};
+
+uint32_t getMaskSopP(ContentKind k);
+void setEncodingSopP(uint32_t &rawInst);
+void setFixedBitsSopP(uint32_t &rawInst);
+void setOpcodeSopP(uint32_t value, uint32_t &rawInst);
+void setSImm16SopP(int16_t value, uint32_t &rawInst);
+
+void emitSopP(unsigned opcode, bool hasImm, int16_t simm16, codeGen &gen);
+// === SOPP END ===
 } // namespace Vega
 
 #endif

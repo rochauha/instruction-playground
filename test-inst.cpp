@@ -24,6 +24,12 @@ int main(int argc, char **argv) {
   //
   // emitter.emitTimesImm(SGPR_1, SGPR_1, -14, codegenBuffer);
   emitter.emitLongJump(SGPR_4, SGPR_5, 0xdeadbeef, codegenBuffer);
+  // emitter.emitNops(1, codegenBuffer);
+  // emitter.emitConditionalBranch([>onConditionTrue<] true, 17, codegenBuffer);
+  // emitter.emitConditionalBranch([>onConditionTrue<] false, 17,
+  // codegenBuffer);
+  emitter.emitEndProgram(codegenBuffer);
+  emitter.emitShortJump(13, codegenBuffer);
 
   printf("%lu\n", codegenBuffer.getOffset());
   // FILE *f = fopen("codegen-buffer", "wb");

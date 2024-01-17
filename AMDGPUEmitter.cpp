@@ -100,8 +100,8 @@ void AMDGPUEmitter::emitLoadConst(Register dest, Address imm, codeGen &gen) {
   uint32_t lowerAddress = imm;
   uint32_t upperAddress = (imm >> 32);
 
-  emitMovLiteral(reg0, lowerAddress, gen);
-  emitMovLiteral(reg1, upperAddress, gen);
+  emitMovLiteral(reg0, upperAddress, gen);
+  emitMovLiteral(reg1, lowerAddress, gen);
 }
 
 void AMDGPUEmitter::emitLoadIndir(Register dest, Register addr_reg, int size,
@@ -276,6 +276,19 @@ bool AMDGPUEmitter::emitAdjustStackPointer(int index, codeGen &gen) {
 
 // Additional interfaces
 
+void AMDGPUEmitter::emitNops(unsigned numNops, codeGen &gen) {
+  assert(numNops >= 1 && numNops <= 16);
+  // 0x0 inserts 1 nop, and 0xFF (15) inserts 16 nops, so subtract 1
+  emitSopP(S_NOP, /* hasImm = */ true, (numNops - 1), gen);
+}
+
+void AMDGPUEmitter::emitEndProgram(codeGen &gen) {
+  // Passing 0 as immediate value.
+  // Value of immediate passed here doesn't matter as the instruction won't have
+  // an immediate.
+  emitSopP(S_ENDPGM, /* hasImm = */ false, 0, gen);
+}
+
 void AMDGPUEmitter::emitMovLiteral(Register reg, uint32_t literal,
                                    codeGen &gen) {
   // s_mov_b32 reg, < 32-bit constant literal >
@@ -283,6 +296,16 @@ void AMDGPUEmitter::emitMovLiteral(Register reg, uint32_t literal,
   // assembler does.
   emitSop1(S_MOV_B32, /* dest = */ reg, /* src0 = */ 0xFF,
            /* hasLiteral = */ true, literal, gen);
+}
+
+void AMDGPUEmitter::emitConditionalBranch(bool onConditionTrue,
+                                          int16_t wordOffset, codeGen &gen) {
+  unsigned opcode = onConditionTrue ? S_BRANCH_SCC0 : S_BRANCH_SCC1;
+  emitSopP(opcode, /* hasImm = */ true, wordOffset, gen);
+}
+
+void AMDGPUEmitter::emitShortJump(int16_t wordOffset, codeGen &gen) {
+  emitSopP(S_BRANCH, /* hasImm = */ true, wordOffset, gen);
 }
 
 void AMDGPUEmitter::emitLongJump(Register reg0, Register reg1,
@@ -293,11 +316,7 @@ void AMDGPUEmitter::emitLongJump(Register reg0, Register reg1,
   assert(reg0 % 2 == 0 && reg1 == reg0 + 1 &&
          "register pair must be even aligned");
 
-  uint32_t lowerAddress = toAddress;
-  uint32_t upperAddress = (toAddress >> 32);
-
-  emitMovLiteral(reg0, lowerAddress, gen);
-  emitMovLiteral(reg1, upperAddress, gen);
+  emitLoadConst(reg0, toAddress, gen);
 
   // S_SETPC_B64 writes to the PC, so dest = 0 just like the assembler does.
   emitSop1(S_SETPC_B64, /* dest = */ 0, reg0, /* hasLiteral = */ false, 0, gen);

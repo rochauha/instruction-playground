@@ -298,4 +298,62 @@ void emitSopK(unsigned opcode, Register dest, int16_t simm16, codeGen &gen) {
   gen.update((void *)rawInstBuffer);
 }
 // === SOPK END ===
+
+// === SOPP BEGIN ===
+uint32_t getMaskSopP(ContentKind k) {
+  switch (k) {
+  case CK_SopP_Encoding:
+    return 0b11000000000000000000000000000000;
+  case CK_SopP_FixedBits:
+    return 0b00111111100000000000000000000000;
+  case CK_SopP_Opcode:
+    return 0b00000000011111110000000000000000;
+  case CK_SopP_SImm16:
+    return 0b00000000000000001111111111111111;
+  default:
+    assert(false && "not valid SopP content kind");
+  }
+}
+
+void setEncodingSopP(uint32_t &rawInst) {
+  uint32_t mask = getMaskSopP(CK_SopP_Encoding);
+  rawInst = (rawInst & ~mask) | ((1 << 31));
+}
+
+void setFixedBitsSopP(uint32_t &rawInst) {
+  uint32_t mask = getMaskSopP(CK_SopP_FixedBits);
+  rawInst = (rawInst & ~mask) | ((0b1111111 << 23));
+}
+
+void setOpcodeSopP(uint32_t value, uint32_t &rawInst) {
+  uint32_t mask = getMaskSopP(CK_SopP_Opcode);
+  rawInst = (rawInst & ~mask) | ((value << 16) & mask);
+}
+
+void setSImm16SopP(int16_t value, uint32_t &rawInst) {
+  uint32_t mask = getMaskSopP(CK_SopP_SImm16);
+  rawInst = (rawInst & ~mask) | ((uint32_t)(value)&mask);
+}
+
+void emitSopP(unsigned opcode, bool hasImm, int16_t simm16, codeGen &gen) {
+  uint32_t newRawInst = 0xFFFFFFFF;
+  setEncodingSopP(newRawInst);
+  setFixedBitsSopP(newRawInst);
+  setOpcodeSopP(opcode, newRawInst);
+
+  if (hasImm)
+    setSImm16SopP(simm16, newRawInst);
+  else
+    setSImm16SopP(0, newRawInst);
+
+  printf("%#x ", newRawInst);
+  printf("%d\n", newRawInst);
+  printBytes(newRawInst);
+  uint32_t *rawInstBuffer = (uint32_t *)gen.cur_ptr();
+  *rawInstBuffer = newRawInst;
+  ++rawInstBuffer;
+  gen.update((void *)rawInstBuffer);
+}
+// === SOPP END ===
+
 } // namespace Vega

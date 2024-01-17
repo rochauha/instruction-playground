@@ -71,6 +71,9 @@ public:
 
   void emitLoad(Register dest, Address addr, int size, codeGen &gen);
 
+  // Consider dest, dest+1 pairs to load the value
+  // dest = upper 32 bits of imm
+  // dest + 1 = lower 32 bits of imm
   void emitLoadConst(Register dest, Address imm, codeGen &gen);
 
   void emitLoadIndir(Register dest, Register addr_reg, int size, codeGen &gen);
@@ -154,7 +157,23 @@ public:
   // bool clobberAllFuncCall(registerSpace *rs, func_instance *callee);
 
   // The additional interfaces
+
+  // Emit numNops nops (numNops >= 1 & numNops <=16)
+  void emitNops(unsigned numNops, codeGen &gen);
+
+  void emitEndProgram(codeGen &gen);
+
+  // Set 32-bit reg = 32-bit literal
   void emitMovLiteral(Register reg, uint32_t literal, codeGen &gen);
+
+  // wordOffset can be positive or negetive 16 bit value
+  // conditionally set PC = PC + SignExtend(wordOffset) + 4
+  void emitConditionalBranch(bool onConditionTrue, int16_t wordOffset,
+                             codeGen &gen);
+
+  // set PC = PC + SignExtend(wordOffset) + 4
+  void emitShortJump(int16_t wordOffset, codeGen &gen);
+
   void emitLongJump(Register reg0, Register reg1, uint64_t toAddress,
                     codeGen &gen);
 };
