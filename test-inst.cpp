@@ -30,7 +30,15 @@ int main(int argc, char **argv) {
   // codegenBuffer);
   // emitter.emitEndProgram(codegenBuffer);
   // emitter.emitShortJump(13, codegenBuffer);
-  emitter.emitIf(SGPR_1, SGPR_4, rc_no_control, codegenBuffer);
+  // emitter.emitIf(SGPR_1, SGPR_4, rc_no_control, codegenBuffer);
+
+  emitter.emitLoadIndir(SGPR_1, SGPR_2, 1, codegenBuffer);
+  emitter.emitLoadIndir(SGPR_1, SGPR_4, 1, codegenBuffer);
+  emitter.emitLoadIndir(SGPR_2, SGPR_4, 2, codegenBuffer);
+  emitter.emitLoadIndir(SGPR_4, SGPR_0, 4, codegenBuffer);
+  // s_load_dword s1, s[4:5], 0x0            ; encoding:
+  // [0x42,0x00,0x02,0xc0,0x00,0x00,0x00,0x00] s_load_dword s1, s[2:3], 0x0 ;
+  // encoding: [0x41,0x00,0x02,0xc0,0x00,0x00,0x00,0x00]
 
   printf("%lu\n", codegenBuffer.getOffset());
   // FILE *f = fopen("codegen-buffer", "wb");

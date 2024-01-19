@@ -103,6 +103,7 @@ public:
   // dest + 1 = lower 32 bits of imm
   void emitLoadConst(Register dest, Address imm, codeGen &gen);
 
+  // s_load_dword, x2, x4, x8, x16
   void emitLoadIndir(Register dest, Register addr_reg, int size, codeGen &gen);
 
   bool emitCallRelative(Register, Address, Register, codeGen &);

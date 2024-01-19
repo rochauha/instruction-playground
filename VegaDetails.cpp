@@ -43,6 +43,13 @@ static void printBytes(unsigned int number) {
   printf("%d \n", n[3]);
 }
 
+static void printBytes(uint64_t number) {
+  uint8_t *n = (uint8_t *)&number;
+  for (int i = 0; i < 8; ++i) {
+    printf("%d ", n[i]);
+  }
+}
+
 namespace Vega {
 
 // === SOP1 BEGIN ===
@@ -355,5 +362,125 @@ void emitSopP(unsigned opcode, bool hasImm, int16_t simm16, codeGen &gen) {
   gen.update((void *)rawInstBuffer);
 }
 // === SOPP END ===
+
+// === SMEM BEGIN ===
+uint64_t getMaskSmem(ContentKind k) {
+  switch (k) {
+  case CK_Smem_Encoding:
+    return 0b0000000000000000000000000000000011111100000000000000000000000000;
+  case CK_Smem_Opcode:
+    return 0b0000000000000000000000000000000000000011111111000000000000000000;
+  case CK_Smem_Imm:
+    return 0b0000000000000000000000000000000000000000000000100000000000000000;
+  case CK_Smem_Glc:
+    return 0b0000000000000000000000000000000000000000000000010000000000000000;
+  case CK_Smem_Nv:
+    return 0b0000000000000000000000000000000000000000000000001000000000000000;
+  case CK_Smem_Soe:
+    return 0b0000000000000000000000000000000000000000000000000100000000000000;
+  case CK_Smem_R1:
+    return 0b0000000000000000000000000000000000000000000000000010000000000000;
+  case CK_Smem_Sdata:
+    return 0b0000000000000000000000000000000000000000000000000001111111000000;
+  case CK_Smem_Sbase:
+    return 0b0000000000000000000000000000000000000000000000000000000000111111;
+  case CK_Smem_Soffset:
+    return 0b1111111000000000000000000000000000000000000000000000000000000000;
+  case CK_Smem_R4:
+    return 0b0000000111100000000000000000000000000000000000000000000000000000;
+  case CK_Smem_Offset:
+    return 0b0000000000011111111111111111111100000000000000000000000000000000;
+  default:
+    assert(false && "not valid SMEM content kind");
+  }
+}
+
+void setEncodingSmem(uint64_t &rawInst) {
+  uint64_t mask = getMaskSmem(CK_Smem_Encoding);
+  rawInst = (rawInst & ~mask) | (((uint64_t)(0b110000) << 26) & mask);
+}
+
+void setOpcodeSmem(uint64_t value, uint64_t &rawInst) {
+  uint64_t mask = getMaskSmem(CK_Smem_Opcode);
+  rawInst = (rawInst & ~mask) | ((value << 18) & mask);
+}
+
+void setImmSmem(bool value, uint64_t &rawInst) {
+  uint64_t mask = getMaskSmem(CK_Smem_Imm);
+  rawInst = (rawInst & ~mask) | (((uint64_t)value << 17) & mask);
+}
+
+void setGlcSmem(bool value, uint64_t &rawInst) {
+  uint64_t mask = getMaskSmem(CK_Smem_Glc);
+  rawInst = (rawInst & ~mask) | (((uint64_t)value << 16) & mask);
+}
+
+void setNvSmem(bool value, uint64_t &rawInst) {
+  uint64_t mask = getMaskSmem(CK_Smem_Nv);
+  rawInst = (rawInst & ~mask) | (((uint64_t)value << 15) & mask);
+}
+
+void setSoeSmem(bool value, uint64_t &rawInst) {
+  uint64_t mask = getMaskSmem(CK_Smem_Soe);
+  rawInst = (rawInst & ~mask) | (((uint64_t)value << 14) & mask);
+}
+
+void setR1Smem(uint64_t &rawInst) {
+  uint64_t mask = getMaskSmem(CK_Smem_R1);
+  rawInst = (rawInst & ~mask) | (uint64_t(0) & mask);
+}
+
+void setSdataSmem(uint64_t value, uint64_t &rawInst) {
+  uint64_t mask = getMaskSmem(CK_Smem_Sdata);
+  rawInst = (rawInst & ~mask) | ((value << 6) & mask);
+}
+
+void setSbaseSmem(uint64_t value, uint64_t &rawInst) {
+  uint64_t mask = getMaskSmem(CK_Smem_Sbase);
+  rawInst = (rawInst & ~mask) | ((value)&mask);
+}
+
+void setSoffsetSmem(uint64_t value, uint64_t &rawInst) {
+  uint64_t mask = getMaskSmem(CK_Smem_Soffset);
+  rawInst = (rawInst & ~mask) | ((value << 57) & mask);
+}
+
+void setR4Smem(uint64_t &rawInst) {
+  uint64_t mask = getMaskSmem(CK_Smem_R4);
+  rawInst = (rawInst & ~mask) | ((uint64_t(0) << 53) & mask);
+}
+
+void setOffsetSmem(uint64_t value, uint64_t &rawInst) {
+  uint64_t mask = getMaskSmem(CK_Smem_Offset);
+  rawInst = (rawInst & ~mask) | ((value << 31) & mask);
+}
+
+void emitSmem(unsigned opcode, uint64_t sdata, uint64_t sbase, codeGen &gen) {
+  uint64_t newRawInst = 0xFFFFFFFFFFFFFFFF;
+
+  setEncodingSmem(newRawInst);
+  setOpcodeSmem(opcode, newRawInst);
+
+  setImmSmem(1, newRawInst);
+  setGlcSmem(0, newRawInst);
+  setNvSmem(0, newRawInst);
+  setSoeSmem(0, newRawInst);
+  setR1Smem(newRawInst);
+  setSdataSmem(sdata, newRawInst);
+  setSbaseSmem(sbase, newRawInst);
+  setSoffsetSmem(0, newRawInst);
+  setR4Smem(newRawInst);
+  setOffsetSmem(0, newRawInst);
+
+  printf("%#lx ", newRawInst);
+  printf("%ld\n", newRawInst);
+  printBytes(newRawInst);
+
+  uint64_t *rawInstBuffer = (uint64_t *)gen.cur_ptr();
+  ++rawInstBuffer;
+  gen.update((void *)rawInstBuffer);
+}
+
+// === SMEM END ===
 
 } // namespace Vega

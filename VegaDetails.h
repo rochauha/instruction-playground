@@ -171,7 +171,20 @@ enum ContentKind {
   CK_SopP_Encoding,
   CK_SopP_FixedBits,
   CK_SopP_Opcode,
-  CK_SopP_SImm16
+  CK_SopP_SImm16,
+
+  CK_Smem_Encoding,
+  CK_Smem_Opcode,
+  CK_Smem_Imm,
+  CK_Smem_Glc,
+  CK_Smem_Nv,
+  CK_Smem_Soe,
+  CK_Smem_R1,
+  CK_Smem_Sdata,
+  CK_Smem_Sbase,
+  CK_Smem_Soffset,
+  CK_Smem_R4,
+  CK_Smem_Offset
 };
 
 // === SOP1 BEGIN ===
@@ -316,9 +329,6 @@ void setSImm16SopK(int16_t value, uint32_t &rawInst);
 void emitSopK(unsigned opcode, Register dest, int16_t simm16, codeGen &gen);
 // === SOPK END ===
 
-
-// TODO : SMEM
-
 // === SOPP BEGIN ===
 // SOPP instruction format in memory: [encoding] [7-fixed-bits] [opcode] [simm16]
 //                   bits (total 32):   2(10)      (1111111)       7        16
@@ -341,6 +351,68 @@ void setSImm16SopP(int16_t value, uint32_t &rawInst);
 
 void emitSopP(unsigned opcode, bool hasImm, int16_t simm16, codeGen &gen);
 // === SOPP END ===
+
+// === SMEM BEGIN ===
+// SMEM instruction format in memory : (total 64 bits)
+
+// 31                                                            0
+// [encoding] [opcode] [imm] [glc] [nv] [soe] [r1] [sdata] [sbase]
+//  6(110000)    8       1     1     1    1    1      7       6
+//
+// 63                   32
+// [soffset] [r4] [offset]
+//     7       4     21
+//
+// r1 and r4 are reserved.
+
+// This enum contains particular SMEM instructions of interest.
+// Extend it later as needed.
+enum SMEM_Opcode {
+  S_LOAD_DWORD = 0,
+  S_LOAD_DWORDX2 = 1,
+  S_LOAD_DWORDX4 = 2,
+  S_LOAD_DWORDX8 = 3,
+  S_LOAD_DWORDX16 = 4,
+
+  S_STORE_DWORD = 16,
+  S_STORE_DWORDX2 = 17,
+  S_STORE_DWORDX4 = 18,
+};
+
+uint64_t getMaskSmem(ContentKind k);
+void setEncodingSmem(uint64_t &rawInst);
+void setOpcodeSmem(uint64_t value, uint64_t &rawInst);
+void setImmSmem(bool value, uint64_t &rawInst);
+void setGlcSmem(bool value, uint64_t &rawInst);
+void setNvSmem(bool value, uint64_t &rawInst);
+void setSoeSmem(bool value, uint64_t &rawInst);
+void setR1Smem(uint64_t &rawInst);
+void setSdataSmem(uint64_t value, uint64_t &rawInst);
+void setSbaseSmem(uint64_t value, uint64_t &rawInst);
+void setSoffsetSmem(uint64_t value, uint64_t &rawInst);
+void setR4Smem(uint64_t &rawInst);
+void setOffsetSmem(uint64_t value, uint64_t &rawInst);
+
+// glc = 0 for our use case
+// we do:
+// load sdata, address
+// store sdata, address
+//
+// we can load 1, 2, 4, 8 or 16 words at a time and store 1, 2, 4 words at a
+// time.
+// TODO: deal with m0
+//
+// For simplicity, we DON'T use offsets; keeping them 0 always.
+// We use glc = 0, imm = 1, soe = 0, nv = 0 (nv stands for non-volatile)
+// so essentially address = sgpr[base]
+// POSSIBLE inconsistency : We need imm = 1, soe = 0 for the above kind of
+// instruction (as per the actual assembled bytes). But page 55 in the manual
+// has imm = 0, soe = 0 for using offset only. Hence loads and stores we emit
+// only depend on address stored in the base register pair
+void emitSmem(unsigned opcode, uint64_t sdata, uint64_t sbase, codeGen &gen);
+
+// === SMEM END ===
+
 } // namespace Vega
 
 #endif

@@ -119,7 +119,46 @@ void AMDGPUEmitter::emitLoadConst(Register dest, Address imm, codeGen &gen) {
 
 void AMDGPUEmitter::emitLoadIndir(Register dest, Register addr_reg, int size,
                                   codeGen &gen) {
-  printf("emitLoadIndir not implemented yet\n");
+  // Caller must ensure the following:
+  //
+  // 1. addr_reg is even aligned and addr_reg, addr_reg + 1 contain the address.
+  // 2. <size> registers starting from dest are available.
+  // 3. Alignment requirement for dest:
+  //    size = 1  : 1
+  //    size = 2  : 2
+  //    size >= 4 : 4
+  // size = 1, 2, 4, 8, 16
+
+  assert(size == 1 || size == 2 || size == 4 || size == 8 || size == 16);
+
+  int alignment = size >= 4 ? 4 : size;
+  assert(dest % alignment == 0 && "destination register must be aligned");
+
+  assert(dest + size - 1 <= SGPR_101 &&
+         "must have consecutive registers to load <size> words");
+
+  unsigned loadOpcode = 0;
+  switch (size) {
+  case 1:
+    loadOpcode = S_LOAD_DWORD;
+    break;
+  case 2:
+    loadOpcode = S_LOAD_DWORDX2;
+    break;
+  case 4:
+    loadOpcode = S_LOAD_DWORDX4;
+    break;
+  case 8:
+    loadOpcode = S_LOAD_DWORDX8;
+    break;
+  case 16:
+    loadOpcode = S_LOAD_DWORDX16;
+    break;
+  default:
+    assert(false && "size can only be 1, 2, 4 or 16");
+  }
+
+  emitSmem(loadOpcode, dest, (addr_reg >> 1), gen);
 }
 
 bool AMDGPUEmitter::emitCallRelative(Register, Address, Register, codeGen &) {
