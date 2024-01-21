@@ -225,7 +225,8 @@ enum SOP2_Opcode {
   S_SUB_I32 = 3,
   S_ADDC_U32 = 4,
   S_SUBB_U32 = 5,
-  S_CSELECT_B32 = 10,
+  S_MUL_I32 = 36,
+  S_CSELE3CT_B32 = 10,
   S_CSELECT_B64 = 11,
 
   S_AND_B32 = 12,
