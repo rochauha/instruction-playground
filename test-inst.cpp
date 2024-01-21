@@ -24,7 +24,7 @@ int main(int argc, char **argv) {
   //
   // emitter.emitTimesImm(SGPR_1, SGPR_1, -14, codegenBuffer);
   // emitter.emitLongJump(SGPR_4, 0xdeadbeef, codegenBuffer);
-  emitter.emitMoveRegToReg(SGPR_1, SGPR_4, codegenBuffer);
+  // emitter.emitMoveRegToReg(SGPR_1, SGPR_4, codegenBuffer);
   // emitter.emitNops(1, codegenBuffer);
   // emitter.emitConditionalBranch([>onConditionTrue<] true, 17, codegenBuffer);
   // emitter.emitConditionalBranch([>onConditionTrue<] false, 17,
@@ -33,7 +33,7 @@ int main(int argc, char **argv) {
   // emitter.emitShortJump(13, codegenBuffer);
   // emitter.emitIf(SGPR_1, SGPR_4, rc_no_control, codegenBuffer);
 
-  // emitter.emitLoadIndir(SGPR_1, SGPR_2, 1, codegenBuffer);
+  emitter.emitLoadIndir(SGPR_1, SGPR_2, 1, codegenBuffer);
   // emitter.emitLoadIndir(SGPR_1, SGPR_4, 1, codegenBuffer);
   // emitter.emitLoadIndir(SGPR_2, SGPR_4, 2, codegenBuffer);
   // emitter.emitLoadIndir(SGPR_4, SGPR_0, 4, codegenBuffer);
@@ -42,10 +42,10 @@ int main(int argc, char **argv) {
   // encoding: [0x41,0x00,0x02,0xc0,0x00,0x00,0x00,0x00]
 
   // emitter.emitLoadRelative(SGPR_1, 0x1234, SGPR_2, 1, codegenBuffer);
-  emitter.emitStoreRelative(SGPR_1, 0x1234, SGPR_2, 1, codegenBuffer);
-  emitter.emitStoreRelative(SGPR_6, 0x1234, SGPR_2, 2, codegenBuffer);
-  emitter.emitStoreRelative(SGPR_8, 0x1234, SGPR_2, 4, codegenBuffer);
-  emitter.emitStoreIndir(SGPR_2, SGPR_8, 4, codegenBuffer);
+  // emitter.emitStoreRelative(SGPR_1, 0x1234, SGPR_2, 1, codegenBuffer);
+  // emitter.emitStoreRelative(SGPR_6, 0x1234, SGPR_2, 2, codegenBuffer);
+  // emitter.emitStoreRelative(SGPR_8, 0x1234, SGPR_2, 4, codegenBuffer);
+  // emitter.emitStoreIndir(SGPR_2, SGPR_8, 4, codegenBuffer);
   printf("%lu\n", codegenBuffer.getOffset());
   // FILE *f = fopen("codegen-buffer", "wb");
   // codegenBuffer.dump(f);

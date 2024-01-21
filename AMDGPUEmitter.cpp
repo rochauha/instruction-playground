@@ -172,6 +172,15 @@ bool AMDGPUEmitter::emitLoadRelative(Register dest, Address offset,
 
   emitSmem(loadOpcode, dest, (base >> 1), (uint64_t)offset, gen);
 
+  // As per page 32 in the manual, 0 is the only legitimate value for scalar
+  // memory reads. However, placement of waitcnt can be optimized later. Right
+  // now set all counters to 0.
+  //
+  // TODO:
+  // 1. Only set LGKM_CNT (simm16[11:8]) to 0 specifically.
+  // 2. Optimize placement of waitcnt.
+  emitSopP(S_WAITCNT, /* hasImm = */ true, 0, gen);
+
   return 0;
 }
 
