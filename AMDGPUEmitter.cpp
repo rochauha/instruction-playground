@@ -216,7 +216,7 @@ void AMDGPUEmitter::emitStore(Address addr, Register src, int size,
 
 void AMDGPUEmitter::emitStoreIndir(Register addr_reg, Register src, int size,
                                    codeGen &gen) {
-  printf("emitStoreIndir not implemented yet\n");
+  emitStoreRelative(src, /*offset =*/0, addr_reg, size, gen);
 }
 
 void AMDGPUEmitter::emitStoreFrameRelative(Address offset, Register src,
@@ -227,7 +227,41 @@ void AMDGPUEmitter::emitStoreFrameRelative(Address offset, Register src,
 
 void AMDGPUEmitter::emitStoreRelative(Register source, Address offset,
                                       Register base, int size, codeGen &gen) {
-  printf("emitStoreRelative not implemented yet\n");
+  // Caller must ensure the following:
+  //
+  // 1. base is even aligned and base, base + 1 contain the address.
+  // 2. <size> registers starting from source hold the value to be stored.
+  // 3. offset must be a 21-bit signed value. Sign-extend to int64_t and cast to
+  // uint64_t before calling if necessary (this is bad).
+  // 3. Alignment requirement for source:
+  //     alignment = size
+  //     size = 1, 2, 4
+
+  assert(size == 1 || size == 2 || size == 4);
+
+  int alignment = size;
+  assert(source % alignment == 0 && "source register must be aligned");
+
+  assert(source + size - 1 <= SGPR_101 &&
+         "must have <size> consecutive registers from source to store <size> "
+         "words from");
+
+  unsigned storeOpcode = 0;
+  switch (size) {
+  case 1:
+    storeOpcode = S_STORE_DWORD;
+    break;
+  case 2:
+    storeOpcode = S_STORE_DWORDX2;
+    break;
+  case 4:
+    storeOpcode = S_STORE_DWORDX4;
+    break;
+  default:
+    assert(false && "size can only be 1, 2, or 4");
+  }
+
+  emitSmem(storeOpcode, source, (base >> 1), (uint64_t)offset, gen);
 }
 
 // void AMDGPUEmitter::emitStoreShared(Register source,

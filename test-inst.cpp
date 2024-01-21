@@ -42,6 +42,10 @@ int main(int argc, char **argv) {
   // encoding: [0x41,0x00,0x02,0xc0,0x00,0x00,0x00,0x00]
 
   // emitter.emitLoadRelative(SGPR_1, 0x1234, SGPR_2, 1, codegenBuffer);
+  emitter.emitStoreRelative(SGPR_1, 0x1234, SGPR_2, 1, codegenBuffer);
+  emitter.emitStoreRelative(SGPR_6, 0x1234, SGPR_2, 2, codegenBuffer);
+  emitter.emitStoreRelative(SGPR_8, 0x1234, SGPR_2, 4, codegenBuffer);
+  emitter.emitStoreIndir(SGPR_2, SGPR_8, 4, codegenBuffer);
   printf("%lu\n", codegenBuffer.getOffset());
   // FILE *f = fopen("codegen-buffer", "wb");
   // codegenBuffer.dump(f);

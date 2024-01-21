@@ -37,6 +37,12 @@
 // instrumentation AST directly to avoid redundancy.
 // See inst.h and insnCodeGen in codegen-<target>.h/cpp to notice redundancy.
 
+// NOTE:
+// Looks like load/store 'orig' interfaces are to deal with original registers
+// that are spilled during instrumentation; and the user would want to change
+// the spilled value. This can't be implemnted on AMDGPU till we have spilling
+// implemented.
+
 class AMDGPUEmitter : public Emitter {
 public:
   // emitIf semantics:
@@ -176,6 +182,7 @@ public:
 
   // bool emitBTRestores(baseTramp *bt, codeGen &gen);
 
+  // TODO: requires allocating / deallocating register (see next comment).
   void emitStoreImm(Address addr, int imm, codeGen &gen, bool noCost);
 
   // TODO: Implementation requires full 'codeGen' and 'registerSpace' class to

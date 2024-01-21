@@ -395,7 +395,6 @@ void setOffsetSmem(uint64_t value, uint64_t &rawInst);
 
 // We can load 1, 2, 4, 8 or 16 words at a time and store 1, 2, 4 words at a
 // time.
-// TODO: deal with m0
 //
 // We use glc = 0, imm = 1, soe = 0, nv = 0 (nv stands for non-volatile)
 // so essentially address = sgpr[base] + signed 21-bit byte offset.
