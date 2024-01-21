@@ -402,14 +402,16 @@ void setOffsetSmem(uint64_t value, uint64_t &rawInst);
 // time.
 // TODO: deal with m0
 //
-// For simplicity, we DON'T use offsets; keeping them 0 always.
 // We use glc = 0, imm = 1, soe = 0, nv = 0 (nv stands for non-volatile)
-// so essentially address = sgpr[base]
-// POSSIBLE inconsistency : We need imm = 1, soe = 0 for the above kind of
-// instruction (as per the actual assembled bytes). But page 55 in the manual
-// has imm = 0, soe = 0 for using offset only. Hence loads and stores we emit
-// only depend on address stored in the base register pair
-void emitSmem(unsigned opcode, uint64_t sdata, uint64_t sbase, codeGen &gen);
+// so essentially address = sgpr[base] + signed 21-bit byte offset.
+//
+// ERRORS IN MANUAL:
+// [1] imm = 1, soe = 0 on inspecting instruction (as per the actual assembled
+// bytes). But page 55 in the manual says imm = 0, soe = 0 for using offset
+// only. [2] Manual says 20-bit unsigned offset and 21 bit diagram, but XML spec
+// says 21 bit signed offset.
+void emitSmem(unsigned opcode, uint64_t sdata, uint64_t sbase, uint64_t offset,
+              codeGen &gen);
 
 // === SMEM END ===
 

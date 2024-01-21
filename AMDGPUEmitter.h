@@ -96,11 +96,14 @@ public:
   void emitDivImm(Register dest, Register src1, RegValue src2imm, codeGen &gen,
                   bool s);
 
+  // This method doesn't fit AMDGPU because addr needs to be stored in 2
+  // additional registers. Use emitLoadConst followed by emitLoadIndir for the
+  // same effect.
   void emitLoad(Register dest, Address addr, int size, codeGen &gen);
 
   // Consider dest, dest+1 pairs to load the value
-  // dest = upper 32 bits of imm
-  // dest + 1 = lower 32 bits of imm
+  // dest = lower 32 bits of imm (LSBs)
+  // dest + 1 = upper 32 bits of imm (MSBs)
   void emitLoadConst(Register dest, Address imm, codeGen &gen);
 
   // s_load_dword, x2, x4, x8, x16
@@ -195,15 +198,14 @@ public:
   void emitMovLiteral(Register reg, uint32_t literal, codeGen &gen);
 
   // wordOffset can be positive or negetive 16 bit value
-  // conditionally set PC = PC + SignExtend(wordOffset) + 4
+  // conditionally set PC = PC + SignExtend(wordOffset * 4) + 4
   void emitConditionalBranch(bool onConditionTrue, int16_t wordOffset,
                              codeGen &gen);
 
-  // set PC = PC + SignExtend(wordOffset) + 4
+  // set PC = PC + SignExtend(wordOffset * 4) + 4
   void emitShortJump(int16_t wordOffset, codeGen &gen);
 
-  void emitLongJump(Register reg0, Register reg1, uint64_t toAddress,
-                    codeGen &gen);
+  void emitLongJump(Register reg, uint64_t toAddress, codeGen &gen);
 };
 
 #endif

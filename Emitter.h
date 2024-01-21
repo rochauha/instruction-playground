@@ -152,7 +152,6 @@ public:
   virtual void emitConditionalBranch(bool onConditionTrue, int16_t wordOffset,
                                      codeGen &gen) = 0;
   virtual void emitShortJump(int16_t wordOffset, codeGen &gen) = 0;
-  virtual void emitLongJump(Register reg0, Register reg1, uint64_t toAddress,
-                            codeGen &gen) = 0;
+  virtual void emitLongJump(Register reg, uint64_t toAddress, codeGen &gen) = 0;
 };
 #endif

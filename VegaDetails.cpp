@@ -452,10 +452,11 @@ void setR4Smem(uint64_t &rawInst) {
 
 void setOffsetSmem(uint64_t value, uint64_t &rawInst) {
   uint64_t mask = getMaskSmem(CK_Smem_Offset);
-  rawInst = (rawInst & ~mask) | ((value << 31) & mask);
+  rawInst = (rawInst & ~mask) | ((value << 32) & mask);
 }
 
-void emitSmem(unsigned opcode, uint64_t sdata, uint64_t sbase, codeGen &gen) {
+void emitSmem(unsigned opcode, uint64_t sdata, uint64_t sbase, uint64_t offset,
+              codeGen &gen) {
   uint64_t newRawInst = 0xFFFFFFFFFFFFFFFF;
 
   setEncodingSmem(newRawInst);
@@ -470,7 +471,7 @@ void emitSmem(unsigned opcode, uint64_t sdata, uint64_t sbase, codeGen &gen) {
   setSbaseSmem(sbase, newRawInst);
   setSoffsetSmem(0, newRawInst);
   setR4Smem(newRawInst);
-  setOffsetSmem(0, newRawInst);
+  setOffsetSmem(offset, newRawInst);
 
   printf("%#lx ", newRawInst);
   printf("%ld\n", newRawInst);

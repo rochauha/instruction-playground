@@ -113,16 +113,28 @@ void AMDGPUEmitter::emitLoadConst(Register dest, Address imm, codeGen &gen) {
   uint32_t lowerAddress = imm;
   uint32_t upperAddress = (imm >> 32);
 
-  emitMovLiteral(reg0, upperAddress, gen);
-  emitMovLiteral(reg1, lowerAddress, gen);
+  emitMovLiteral(reg0, lowerAddress, gen);
+  emitMovLiteral(reg1, upperAddress, gen);
 }
 
 void AMDGPUEmitter::emitLoadIndir(Register dest, Register addr_reg, int size,
                                   codeGen &gen) {
+  emitLoadRelative(dest, /* offset =*/0, addr_reg, size, gen);
+}
+
+bool AMDGPUEmitter::emitCallRelative(Register, Address, Register, codeGen &) {
+  printf("emitCallRelative not implemented yet\n");
+  return 0;
+}
+
+bool AMDGPUEmitter::emitLoadRelative(Register dest, Address offset,
+                                     Register base, int size, codeGen &gen) {
   // Caller must ensure the following:
   //
-  // 1. addr_reg is even aligned and addr_reg, addr_reg + 1 contain the address.
+  // 1. base is even aligned and base, base + 1 contain the address.
   // 2. <size> registers starting from dest are available.
+  // 3. offset must be a 21-bit signed value. Sign-extend to int64_t and cast to
+  // uint64_t before calling if necessary (this is bad).
   // 3. Alignment requirement for dest:
   //    size = 1  : 1
   //    size = 2  : 2
@@ -158,17 +170,8 @@ void AMDGPUEmitter::emitLoadIndir(Register dest, Register addr_reg, int size,
     assert(false && "size can only be 1, 2, 4 or 16");
   }
 
-  emitSmem(loadOpcode, dest, (addr_reg >> 1), gen);
-}
+  emitSmem(loadOpcode, dest, (base >> 1), (uint64_t)offset, gen);
 
-bool AMDGPUEmitter::emitCallRelative(Register, Address, Register, codeGen &) {
-  printf("emitCallRelative not implemented yet\n");
-  return 0;
-}
-
-bool AMDGPUEmitter::emitLoadRelative(Register dest, Address offset,
-                                     Register base, int size, codeGen &gen) {
-  printf("emitLoadRelative not implemented yet\n");
   return 0;
 }
 
@@ -360,18 +363,12 @@ void AMDGPUEmitter::emitShortJump(int16_t wordOffset, codeGen &gen) {
   emitSopP(S_BRANCH, /* hasImm = */ true, wordOffset, gen);
 }
 
-void AMDGPUEmitter::emitLongJump(Register reg0, Register reg1,
-                                 uint64_t toAddress, codeGen &gen) {
-  // Right now only consider SGPRs
-  assert(reg0 >= SGPR_0 && reg0 <= SGPR_101 && "reg0 must be an SGPR");
-  assert(reg1 >= SGPR_0 && reg1 <= SGPR_101 && "reg1 must be an SGPR");
-  assert(reg0 % 2 == 0 && reg1 == reg0 + 1 &&
-         "register pair must be even aligned");
-
-  emitLoadConst(reg0, toAddress, gen);
+void AMDGPUEmitter::emitLongJump(Register reg, uint64_t toAddress,
+                                 codeGen &gen) {
+  emitLoadConst(reg, toAddress, gen);
 
   // S_SETPC_B64 writes to the PC, so dest = 0 just like the assembler does.
-  emitSop1(S_SETPC_B64, /* dest = */ 0, reg0, /* hasLiteral = */ false, 0, gen);
+  emitSop1(S_SETPC_B64, /* dest = */ 0, reg, /* hasLiteral = */ false, 0, gen);
 }
 
 // ===== AMDGPUEmitter implementation end =====
