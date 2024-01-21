@@ -23,7 +23,8 @@ int main(int argc, char **argv) {
   // SCC_DUMMY = <] 0, SGPR_1, 20, codegenBuffer, 0);
   //
   // emitter.emitTimesImm(SGPR_1, SGPR_1, -14, codegenBuffer);
-  emitter.emitLongJump(SGPR_4, 0xdeadbeef, codegenBuffer);
+  // emitter.emitLongJump(SGPR_4, 0xdeadbeef, codegenBuffer);
+  emitter.emitMoveRegToReg(SGPR_1, SGPR_4, codegenBuffer);
   // emitter.emitNops(1, codegenBuffer);
   // emitter.emitConditionalBranch([>onConditionTrue<] true, 17, codegenBuffer);
   // emitter.emitConditionalBranch([>onConditionTrue<] false, 17,

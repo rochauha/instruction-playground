@@ -393,12 +393,7 @@ void setSoffsetSmem(uint64_t value, uint64_t &rawInst);
 void setR4Smem(uint64_t &rawInst);
 void setOffsetSmem(uint64_t value, uint64_t &rawInst);
 
-// glc = 0 for our use case
-// we do:
-// load sdata, address
-// store sdata, address
-//
-// we can load 1, 2, 4, 8 or 16 words at a time and store 1, 2, 4 words at a
+// We can load 1, 2, 4, 8 or 16 words at a time and store 1, 2, 4 words at a
 // time.
 // TODO: deal with m0
 //

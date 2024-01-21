@@ -167,7 +167,7 @@ bool AMDGPUEmitter::emitLoadRelative(Register dest, Address offset,
     loadOpcode = S_LOAD_DWORDX16;
     break;
   default:
-    assert(false && "size can only be 1, 2, 4 or 16");
+    assert(false && "size can only be 1, 2, 4, 8 or 16");
   }
 
   emitSmem(loadOpcode, dest, (base >> 1), (uint64_t)offset, gen);
@@ -239,7 +239,8 @@ void AMDGPUEmitter::emitStoreRelative(Register source, Address offset,
 
 bool AMDGPUEmitter::emitMoveRegToReg(Register src, Register dest,
                                      codeGen &gen) {
-  printf("emitMoveRegToReg not implemented yet\n");
+
+  emitSop1(S_MOV_B32, dest, src, /*hasLiteral =*/false, /*literal =*/0, gen);
   return 0;
 }
 

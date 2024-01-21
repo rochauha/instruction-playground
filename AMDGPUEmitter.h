@@ -96,9 +96,10 @@ public:
   void emitDivImm(Register dest, Register src1, RegValue src2imm, codeGen &gen,
                   bool s);
 
-  // This method doesn't fit AMDGPU because addr needs to be stored in 2
-  // additional registers. Use emitLoadConst followed by emitLoadIndir for the
-  // same effect.
+  // TODO: Implementation requires full 'codeGen' and 'registerSpace' class to
+  // allocate register. This method doesn't fit AMDGPU because addr needs to be
+  // stored in 2 additional registers. Use emitLoadConst followed by
+  // emitLoadIndir for the same effect.
   void emitLoad(Register dest, Address addr, int size, codeGen &gen);
 
   // Consider dest, dest+1 pairs to load the value
@@ -177,6 +178,9 @@ public:
 
   void emitStoreImm(Address addr, int imm, codeGen &gen, bool noCost);
 
+  // TODO: Implementation requires full 'codeGen' and 'registerSpace' class to
+  // allocate register. ALSO FIXME: bool noCost seems like a redundant
+  // parameter.
   void emitAddSignedImm(Address addr, int imm, codeGen &gen, bool noCost);
 
   bool emitPush(codeGen &, Register);
