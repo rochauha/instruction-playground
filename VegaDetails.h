@@ -218,6 +218,7 @@ void emitSop1(unsigned opcode, Register dest, Register src0, bool hasLiteral,
 //                   bits (total 32):   2(10)       7       7       8       8
 // This enum contains particular SOP2 instructions of interest.
 // Extend it later as needed.
+// NOTE: many of these operations are unused as the abstract opcode enum doesn't have such detailed options.
 enum SOP2_Opcode {
   S_ADD_U32 = 0,
   S_SUB_U32 = 1,
@@ -268,6 +269,9 @@ enum SOPC_Opcode {
   S_CMP_EQ_U32 = 6,
   S_CMP_EQ_U64 = 18,
 
+  S_CMP_LG_I32 = 1,
+  S_CMP_LG_U32 = 7,
+
   S_CMP_GT_I32 = 2,
   S_CMP_GT_U32 = 8,
 
@@ -303,6 +307,9 @@ void emitSopC(unsigned opcode, Register src1, Register src0, codeGen &gen);
 enum SOPK_Opcode {
   S_CMPK_EQ_I32 = 2,
   S_CMPK_EQ_U32 = 8,
+
+  S_CMPK_LG_I32 = 3,
+  S_CMPK_LG_U32 = 9,
 
   S_CMPK_GT_I32 = 4,
   S_CMPK_GT_U32 = 10,
