@@ -30,6 +30,7 @@
 #define EMITTER_H
 
 #include "MemBuffer.h"
+#include "opcode.h"
 
 // ==== Necessary evils begin ====
 

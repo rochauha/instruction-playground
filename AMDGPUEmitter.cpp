@@ -58,7 +58,40 @@ unsigned AMDGPUEmitter::emitIf(Register expr_reg, Register target,
 // AMDGPUEmitter implementation
 void AMDGPUEmitter::emitOp(unsigned opcode, Register dest, Register src1,
                            Register src2, codeGen &gen) {
-  emitSop2(opcode, dest, src1, src2, gen);
+  uint32_t opcodeSop2 = 0;
+  switch (opcode) {
+  case plusOp:
+    opcodeSop2 = S_ADD_I32;
+    break;
+
+  case minusOp:
+    opcodeSop2 = S_SUB_I32;
+    break;
+
+  case timesOp:
+    opcodeSop2 = S_MUL_I32;
+    break;
+
+  case divOp:
+    assert(false && "opcode must correspond to a supported SOP2 operation");
+    break;
+
+  case andOp:
+    opcodeSop2 = S_AND_B32;
+    break;
+
+  case orOp:
+    opcodeSop2 = S_OR_B32;
+    break;
+
+  case xorOp:
+    opcodeSop2 = S_XOR_B32;
+    break;
+
+  default:
+    assert(false && "opcode must correspond to a supported SOP2 operation");
+  }
+  emitSop2(opcodeSop2, dest, src1, src2, gen);
 }
 
 void AMDGPUEmitter::emitOpImm(unsigned opcode1, unsigned opcode2, Register dest,
@@ -68,14 +101,65 @@ void AMDGPUEmitter::emitOpImm(unsigned opcode1, unsigned opcode2, Register dest,
 
 void AMDGPUEmitter::emitRelOp(unsigned opcode, Register dest, Register src1,
                               Register src2, codeGen &gen, bool s) {
-  // assert(Vega::isRelationalOp(opcode) &&
-  //        "opcode must correspond to a relational operation");
-  emitSopC(opcode, src1, src2, gen);
+  uint32_t opcodeSopC = 0;
+  switch (opcode) {
+  case lessOp:
+    opcodeSopC = S_CMP_LT_I32;
+    break;
+
+  case leOp:
+    opcodeSopC = S_CMP_LE_I32;
+    break;
+
+  case greaterOp:
+    opcodeSopC = S_CMP_GT_I32;
+    break;
+
+  case geOp:
+    opcodeSopC = S_CMP_GE_I32;
+    break;
+
+  case eqOp:
+    opcodeSopC = S_CMP_EQ_I32;
+    break;
+
+  case neOp:
+    opcodeSopC = S_CMP_LG_I32;
+    break;
+
+  default:
+    assert(false && "opcode must correspond to a supported SOPC operation");
+  }
+  emitSopC(opcodeSopC, src1, src2, gen);
 }
 
 void AMDGPUEmitter::emitRelOpImm(unsigned op, Register dest, Register src1,
                                  RegValue src2imm, codeGen &gen, bool s) {
-  emitSopK(op, src1, src2imm, gen);
+  uint32_t opcodeSopK = 0;
+  switch (op) {
+  case lessOp:
+    opcodeSopK = S_CMPK_LT_I32;
+    break;
+  case leOp:
+    opcodeSopK = S_CMPK_LE_I32;
+    break;
+  case greaterOp:
+    opcodeSopK = S_CMPK_GT_I32;
+    break;
+  case geOp:
+    opcodeSopK = S_CMPK_GE_I32;
+    break;
+  case eqOp:
+    opcodeSopK = S_CMPK_EQ_I32;
+    break;
+  case neOp:
+    opcodeSopK = S_CMPK_LG_I32;
+    break;
+  default:
+    assert(false &&
+           "opcode must correspond to a supported SOPK relational operation");
+  }
+  emitSopK(opcodeSopK, src1, src2imm, gen);
 }
 
 void AMDGPUEmitter::emitDiv(Register dest, Register src1, Register src2,

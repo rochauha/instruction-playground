@@ -14,15 +14,37 @@ int main(int argc, char **argv) {
   AMDGPUEmitter emitter;
 
   printf("%lu\n", codegenBuffer.getOffset());
-  // emitter.emitOp(S_ADD_U32, SGPR_3, SGPR_1, SGPR_2, codegenBuffer);
-  // emitter.emitOp(S_ADD_I32, SGPR_3, SGPR_1, SGPR_2, codegenBuffer);
+  emitter.emitOp(plusOp, SGPR_3, SGPR_1, SGPR_2, codegenBuffer);
+  emitter.emitOp(minusOp, SGPR_3, SGPR_1, SGPR_2, codegenBuffer);
+  emitter.emitOp(timesOp, SGPR_3, SGPR_1, SGPR_2, codegenBuffer);
+  emitter.emitOp(orOp, SGPR_3, SGPR_1, SGPR_2, codegenBuffer);
+  emitter.emitOp(andOp, SGPR_3, SGPR_1, SGPR_2, codegenBuffer);
+  emitter.emitOp(xorOp, SGPR_3, SGPR_1, SGPR_2, codegenBuffer);
+
+  emitter.emitRelOp(lessOp, /*SCC_DUMMY=*/0, SGPR_1, SGPR_2, codegenBuffer, 0);
+  emitter.emitRelOp(leOp, /*SCC_DUMMY=*/0, SGPR_1, SGPR_2, codegenBuffer, 0);
+  emitter.emitRelOp(greaterOp, /*SCC_DUMMY=*/0, SGPR_1, SGPR_2, codegenBuffer,
+                    0);
+  emitter.emitRelOp(geOp, /*SCC_DUMMY=*/0, SGPR_1, SGPR_2, codegenBuffer, 0);
+  emitter.emitRelOp(eqOp, /*SCC_DUMMY=*/0, SGPR_1, SGPR_2, codegenBuffer, 0);
+  emitter.emitRelOp(neOp, /*SCC_DUMMY=*/0, SGPR_1, SGPR_2, codegenBuffer, 0);
+
+  emitter.emitRelOpImm(lessOp, /*SCC_DUMMY=*/0, SGPR_1, SGPR_2, codegenBuffer,
+                       0);
+  emitter.emitRelOpImm(leOp, /*SCC_DUMMY=*/0, SGPR_1, SGPR_2, codegenBuffer, 0);
+  emitter.emitRelOpImm(greaterOp, /*SCC_DUMMY=*/0, SGPR_1, SGPR_2,
+                       codegenBuffer, 0);
+  emitter.emitRelOpImm(geOp, /*SCC_DUMMY=*/0, SGPR_1, SGPR_2, codegenBuffer, 0);
+  emitter.emitRelOpImm(eqOp, /*SCC_DUMMY=*/0, SGPR_1, SGPR_2, codegenBuffer, 0);
+  emitter.emitRelOpImm(neOp, /*SCC_DUMMY=*/0, SGPR_1, SGPR_2, codegenBuffer, 0);
+
   // emitter.emitOp(S_OR_B32, SGPR_3, SGPR_1, SGPR_2, codegenBuffer);
   // emitter.emitRelOp(S_CMP_EQ_U32, [> SCC_DUMMY = <] 0, SGPR_1, SGPR_2,
   // codegenBuffer, 0); emitter.emitRelOpImm(S_CMPK_EQ_I32, [> SCC_DUMMY = <] 0,
   // SGPR_1, -5, codegenBuffer, 0); emitter.emitRelOpImm(S_CMPK_GT_U32, [>
   // SCC_DUMMY = <] 0, SGPR_1, 20, codegenBuffer, 0);
   //
-  emitter.emitOp(S_MUL_I32, SGPR_3, SGPR_1, SGPR_2, codegenBuffer);
+  // emitter.emitOp(S_MUL_I32, SGPR_3, SGPR_1, SGPR_2, codegenBuffer);
   // emitter.emitTimesImm(SGPR_1, SGPR_1, -14, codegenBuffer);
   // emitter.emitLongJump(SGPR_4, 0xdeadbeef, codegenBuffer);
   // emitter.emitMoveRegToReg(SGPR_1, SGPR_4, codegenBuffer);
